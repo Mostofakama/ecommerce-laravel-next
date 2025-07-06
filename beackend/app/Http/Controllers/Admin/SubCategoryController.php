@@ -9,7 +9,8 @@ use App\Http\Requests\SubCategoryRequestStore;
 use App\Http\Requests\SubCategoryRequestUpdate;
 
 class SubCategoryController extends Controller
-{ protected $SubCategoryServices;
+{ 
+    protected $SubCategoryServices;
 
     public function __construct(SubCategoryServices $SubCategoryServices){
       $this->SubCategoryServices = $SubCategoryServices;
@@ -53,4 +54,19 @@ class SubCategoryController extends Controller
     {
         return $this->SubCategoryServices->destroy($id);
     }
+
+    public function categoryForm()
+    {
+        return $this->SubCategoryServices->categoryForm();
+    }
+    public function BrandForm()
+    {
+       
+     return $this->SubCategoryServices->BrandForm();
+    }
+    public function SubCategoryForm()
+    {
+        return $this->SubCategoryServices->SubCategoryForm();
+    }
+
 }

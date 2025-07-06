@@ -2,13 +2,18 @@
 
 namespace App\Services;
 
+use App\Models\Brand;
+use App\Models\Category;
+use App\Models\SubCategory;
+use Illuminate\Support\Str;
+
 class SubCategoryServices{
       public function index()
     {
-      $category = Category::paginate(10);
+      $category = SubCategory::paginate(10);
       return response()->json([
         'status' => true,
-        'message' => 'all Category get successfully!',
+        'message' => 'all Sub Category get successfully!',
         'data' => $category
       ]);
     }
@@ -18,21 +23,26 @@ class SubCategoryServices{
      */
     public function store($request)
     {
-        $audioFile = $request->file('image');
-        $audioExtension = $audioFile->getClientOriginalExtension();
-        $audioFilename = Str::random(20).'-'.time().'.'.$audioExtension;
-        $audioFile->move(public_path('uploads/category'), $audioFilename);
-
-       $category = Category::create([
+         $ImageFilename = null;
+       // return $request;
+       if ($request->hasFile('image')) {
+        $ImageFile = $request->file('image');
+        $ImageFileExtension = $ImageFile->getClientOriginalExtension();
+        $ImageFilename = Str::random(20).'-'.time().'.'.$ImageFileExtension;
+        $ImageFile->move(public_path('uploads/subcategory'), $ImageFilename);
+       }
+       // return $ImageFilename;
+       $category = SubCategory::create([
             'name'   => $request->name,
             'slug'   => $request->slug,
-            'image'  => $audioFilename,
+            'image'  => $ImageFilename,
+            'category_id' => $request->category_id,
             'status' => true,
        ]);
 
        return response()->json([
           'status' => true,
-          'message' => 'Category Create Successfully',
+          'message' => 'Sub Category Create Successfully',
           'data' => $category,
        ],200);
     }
@@ -42,17 +52,17 @@ class SubCategoryServices{
      */
     public function show( $id)
     {
-        $category = Category::find($id);
+        $category = SubCategory::find($id);
         if(!$category){
             return response()->json([
               'status' => false,
-              'message' => 'category not found!',
+              'message' => 'Sub Category not found!',
             ],401);
         }
 
         return response()->json([
             'status' => true,
-            'message' => 'Single Category Find Successfully!',
+            'message' => 'Single Sub Category Find Successfully!',
             'data' => $category,
         ],200);
     }
@@ -62,26 +72,26 @@ class SubCategoryServices{
      */
     public function update( $request,  $id)
     {
-      $catId = Category::find($id);
+      $catId = SubCategory::find($id);
       if (!$catId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Category not found',
+                    'message' => 'Sub Category not found',
                 ], 404);
             }
              
       $data = $request->only([
-          'name','slug','status'
+          'name','slug','status','category_id'
       ]);
 
         if($request->hasFile('image')){
-          if ($catId->image && file_exists(public_path('uploads/category/'.$catId->image))) {
-                    unlink(public_path('uploads/category/'.$catId->image));
+          if ($catId->image && file_exists(public_path('uploads/subcategory/'.$catId->image))) {
+                    unlink(public_path('uploads/subcategory/'.$catId->image));
                 }
                  $audioFile = $request->file('image');
                 $audioExtension = $audioFile->getClientOriginalExtension();
                 $audioFilename = Str::random(20) .'-'.time().'.'.$audioExtension;
-                $audioFile->move(public_path('uploads/category'), $audioFilename);
+                $audioFile->move(public_path('uploads/subcategory'), $audioFilename);
                 $data['image'] = $audioFilename;
 
         }
@@ -90,7 +100,7 @@ class SubCategoryServices{
 
         return response()->json([
             'success' => true,
-            'message' => 'Category updated successfully!',
+            'message' => 'Sub Category updated successfully!',
             'data' => $catId
         ]);
 
@@ -102,18 +112,18 @@ class SubCategoryServices{
     public function destroy( $id)
     {
           try {
-            $catId = Category::find($id);
+            $catId = SubCategory::find($id);
             
             if (!$catId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Category not found',
+                    'message' => 'Sub Category not found',
                 ], 404);
             }
 
             // Delete audio file
-            if ($catId->image && file_exists(public_path('uploads/category/'.$catId->image))) {
-                    unlink(public_path('uploads/category/'.$catId->image));
+            if ($catId->image && file_exists(public_path('uploads/subcategory/'.$catId->image))) {
+                    unlink(public_path('uploads/subcategory/'.$catId->image));
                 }
 
             
@@ -121,16 +131,47 @@ class SubCategoryServices{
 
             return response()->json([
                 'success' => true,
-                'message' => 'Category deleted successfully!',
+                'message' => 'Sub Category deleted successfully!',
             ]);
 
         } catch (\Throwable $th) {
-            \Log::error('Category deletion failed: '.$th->getMessage());
+            \Log::error('Sub Category deletion failed: '.$th->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete category',
+                'message' => 'Failed to delete sub category',
                 'error' => $th->getMessage()
             ], 500);
         }
+    }
+
+
+
+    public function categoryForm()
+    {
+        $category = Category::get();
+        return response()->json([
+            'status' =>true,
+            'message' => 'all category select',
+            'data' => $category,
+        ]);
+    }
+
+    public function BrandForm()
+    {
+        $category = Brand::get();
+        return response()->json([
+            'status' =>true,
+            'message' => 'all brand select',
+            'data' => $category,
+        ]);
+    }
+    public function SubCategoryForm()
+    {
+         $category = SubCategory::get();
+        return response()->json([
+            'status' =>true,
+            'message' => 'All SubCategory select',
+            'data' => $category,
+        ]);
     }
 }
